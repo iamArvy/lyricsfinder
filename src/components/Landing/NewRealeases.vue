@@ -4,7 +4,7 @@
         <div class="section">
             <div @click="navigateToAlbum(album.id)" v-for="(album, index) in newalbumgetter" :key="index" :to="{ name: 'AlbumPage', query: { id: album.id } }">
             <div class="tracks">
-                <img v-if="album.images && album.images.length > 1" :src="album.images[1].url" alt="Second Image" />
+                <img v-if="album.images && album.images.length > 1" :src="album.images[2].url" alt="Second Image" />
                 <div class="det">
                     <h6>{{ album.name }}</h6>
                     <div>
