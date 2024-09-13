@@ -5,13 +5,13 @@ defineProps({
 </script>
 <template>
   <section>
-    <h3>{{ title }}</h3>
+    <h2>{{ title }}</h2>
     <slot />
   </section>
 </template>
 <style scoped>
-h3 {
-  text-align: center;
-  text-decoration: underline;
+section {
+  padding-top: 2rem;
+  padding-bottom: 2rem;
 }
 </style>

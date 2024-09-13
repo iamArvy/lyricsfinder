@@ -3,6 +3,7 @@ import { RouterView } from 'vue-router'
 </script>
 
 <template>
+
   <RouterView />
 </template>
 
@@ -31,6 +32,9 @@ html,
 body {
   height: 100%;
   margin: 0;
+}
+a {
+  text-decoration: none;
 }
 h2 {
   font-size: calc(1.325rem + 0.9vw);

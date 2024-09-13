@@ -2,21 +2,31 @@
 import Header from './HeaderBar.vue'
 import Footer from './FooterBar.vue'
 import Loader from './LoadingScreen.vue'
+
+// const loaded = false
 defineProps({
   loaded: Boolean
 })
 </script>
 <template>
-  <Header />
-  <main>
-    <slot />
-  </main>
-  <!-- <Loader v-else /> -->
-  <Footer />
+  <div class="app-container">
+    <Header />
+    <main v-if="loaded">
+      <slot />
+    </main>
+    <Loader v-else />
+    <Footer />
+  </div>
 </template>
-<!-- <template v-else class="loading">
-</template> -->
-<style scoped>
+<style>
+.app-container {
+  display: flex;
+  flex-direction: column;
+  min-height: 100svh;
+}
+:root {
+  --header-height: 70px;
+}
 * {
   margin: 0;
   padding: 0;
@@ -34,11 +44,10 @@ section {
   height: 100vh;
 }
 main {
-  margin-top: 3.5rem;
-  display: flex;
-  flex-direction: column;
-  gap: 2rem;
-  min-height: 80vh;
+  margin-top: var(--header-height);
+  flex: 1;
+  /* min-height: 80vh; */
+  max-width: 1280px;
 }
 * {
   font-family: Poppins;

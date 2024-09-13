@@ -3,11 +3,13 @@
     <SecondarySection title="Songs" v-if="tracks">
       <ScrollerList>
         <ScrollerItem
-          v-for="(item, index) in tracks"
-          :key="index"
-          @click="navigate(item.id, 'track')"
+          v-for="item in tracks"
+          :key="item"
           :name="item.name"
           :artists="item.artists"
+          :value="item.id"
+          route="track"
+          params="id"
           :image="item.album.images[1].url"
         />
       </ScrollerList>
@@ -15,24 +17,28 @@
     <SecondarySection title="Albums" v-if="albums">
       <ScrollerList>
         <ScrollerItem
-          v-for="(item, index) in albums"
-          :key="index"
-          @click="navigate(item.id, 'album')"
+          v-for="item in albums"
+          :key="item"
           :name="item.name"
           :artists="item.artists"
-          :image="item.images[1].url"
+          :image="item?.images[1].url"
+          :value="item.id"
+          route="album"
+          params="id"
         />
       </ScrollerList>
     </SecondarySection>
-    <SecondarySection title="Songs" v-if="artists">
+    <SecondarySection title="Artists" v-if="artists">
       <ScrollerList>
         <ScrollerItem
-          v-for="(item, index) in artists"
-          :key="index"
-          @click="navigate(item.id, 'artist')"
+          v-for="item in artists"
+          :key="item"
           :name="item.name"
           :followers="item.followers"
-          :image="item.images[1].url"
+          :image="item?.images[1].url"
+          :value="item.id"
+          route="artist"
+          params="id"
         />
       </ScrollerList>
     </SecondarySection>
@@ -44,13 +50,35 @@ import AppLayout from '@/components/AppLayout.vue'
 import { useRoute } from 'vue-router'
 const route = useRoute()
 import { useSpotifyStore } from '@/stores/spotify'
-import { computed, onMounted, ref } from 'vue'
+import { onMounted, ref } from 'vue'
 const spotify = useSpotifyStore()
-import { navigate } from '@/components/navigate'
-// const loaded = computed(() => spotify.loaded)
-const tracks = computed(() => spotify.trackresult)
-const artists = computed(() => spotify.artistresult)
-const albums = computed(() => spotify.albumresult)
+const tracks = ref<
+  | {
+      album?: { images?: { url?: string }[] }
+      name?: string
+      id?: number
+      artists?: { name: string }[]
+    }[]
+  | null
+>(null)
+const artists = ref<
+  | {
+      followers?: string
+      name?: string
+      id?: number
+      artists?: { name: string }[]
+    }[]
+  | null
+>(null)
+const albums = ref<
+  | {
+      images?: { url?: string }[]
+      name?: string
+      id?: number
+      artists?: { name: string }[]
+    }[]
+  | null
+>(null)
 import ScrollerItem from '@/components/ScrollerItem.vue'
 import ScrollerList from '@/components/ScrollerList.vue'
 import SecondarySection from '@/components/SecondarySection.vue'
@@ -63,15 +91,13 @@ import SecondarySection from '@/components/SecondarySection.vue'
 // const key = '437bfd7c68msh4d167dbcd27dd99p1154b1jsn364697005719'; //hell 27th september
 const itemId = route.query.q as string
 const loaded = ref(false)
-onMounted(() => {
-  spotify.search(itemId)
+onMounted(async () => {
+  await spotify.search(itemId)
+  tracks.value = spotify.trackresult || null
+  artists.value = spotify.artistresult || null
+  albums.value = spotify.albumresult || null
   loaded.value = true
 })
-// const navigate = (value: Number, route: String): void => {
-//   const baseURL = `/${route}`
-//   const urlWithQuery = `${baseURL}?id=${value}`
-//   window.location.href = urlWithQuery
-// }
 </script>
 
 <style scoped>

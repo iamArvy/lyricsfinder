@@ -22,6 +22,20 @@
         />
       </VerticalLister>
     </MainSection>
+    <MoreInfo title="New Releases" v-if="album != null" class="dark">
+      <ScrollerList>
+        <ScrollerItem
+          v-for="item in newrelease"
+          :key="item"
+          :image="item.images[2].url"
+          :name="item.name"
+          :artists="item.artists"
+          route="album"
+          params="id"
+          :value="item.id"
+        />
+      </ScrollerList>
+    </MoreInfo>
   </AppLayout>
 </template>
 
@@ -34,6 +48,9 @@ import AppLayout from '@/components/AppLayout.vue'
 import MainSection from '@/components/MainSection.vue'
 import ListItem from '@/components/ListItem.vue'
 import VerticalLister from '@/components/VerticalLister.vue'
+import MoreInfo from '@/components/MoreInfo.vue'
+import ScrollerItem from '@/components/ScrollerItem.vue'
+import ScrollerList from '@/components/ScrollerList.vue'
 const spotify = useSpotifyStore()
 const album = ref<{
   images: { url: string }[]
@@ -46,6 +63,16 @@ const tracks = ref<{
   name?: string
   artists?: any[]
 } | null>(null)
+const newrelease = ref<
+  | {
+      images: { url: string }[]
+      name?: string
+      artists?: { name: string }[]
+      id: number
+    }[]
+  | null
+>(null)
+
 const loaded = ref(false)
 
 // Get route parameters
@@ -56,10 +83,11 @@ onMounted(async () => {
   try {
     // Fetch album data
     await spotify.albums(itemId)
-
+    await spotify.getNewRelease()
     // Update album reference with data from Spotify store
     album.value = spotify.albumgetter || null
     tracks.value = spotify.albumgetter.tracks.items || null
+    newrelease.value = spotify.getnewrelease || null
 
     // Set loaded state to true after data is fetched
     loaded.value = true

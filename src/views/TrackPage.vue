@@ -91,7 +91,7 @@ const recommendations = ref<
       :url="track?.preview_url"
       :uri="track?.uri"
     />
-    <MoreInfo title="Songs on Album" v-if="album != null">
+    <MoreInfo title="Songs on Album" v-if="album != null" class="dark">
       <ScrollerList>
         <ScrollerItem
           v-for="item in album"
@@ -107,7 +107,7 @@ const recommendations = ref<
         />
       </ScrollerList>
     </MoreInfo>
-    <MoreInfo title="Recommendations">
+    <MoreInfo title="Recommendations" class="dark">
       <ScrollerList>
         <ScrollerItem
           v-for="(item, index) in recommendations"

@@ -13,7 +13,7 @@ defineProps({
 })
 </script>
 <template>
-  <section style="background-color: black; color: white; padding: 1rem">
+  <section style="background-color: black; color: white">
     <!-- <div class="right"> -->
     <figure>
       <img :src="image" :alt="name" />
@@ -64,9 +64,30 @@ section {
   display: flex;
   flex-direction: row;
   gap: 3rem;
+  padding-top: 1rem;
+  padding-bottom: 1rem;
+  background-color: black;
+  
 }
-.todown:hover {
-  border-bottom: 2px solid black;
+@media (max-width: 700px) {
+  section {
+    flex-direction: column;
+    gap: 1rem;
+  }
+}
+</style>
+
+<!-- <style scoped>
+.link {
+  border-bottom: 2px solid white;
+  color: white;
+}
+section {
+  display: flex;
+  flex-direction: row;
+  gap: 3rem;
+  padding-top: 1rem;
+  padding-bottom: 1rem;
 }
 .albuminfos img {
   width: 300px;
@@ -131,4 +152,4 @@ a {
     width: unset;
   }
 }
-</style>
+</style> -->

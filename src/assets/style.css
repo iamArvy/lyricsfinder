@@ -1,4 +1,8 @@
 /* @import '@fortawesome/fontawesome-free/css/all.css'; */
-body {
-  height: 100svh;
+body,
+html {
+  height: 100%;
 }
+/* a {
+  text-decoration: none;
+} */

@@ -60,5 +60,7 @@ figcaption {
 }
 .dark .items {
   background-color: transparent;
+  box-shadow: unset;
+  color: white;
 }
 </style>

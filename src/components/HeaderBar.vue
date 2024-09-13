@@ -1,10 +1,19 @@
+<script setup>
+import { ref } from 'vue'
+import { RouterLink } from 'vue-router'
+const query = ref('')
+const submitForm = () => {
+  window.location.href = `/search?q=${query.value.toString()}`
+}
+</script>
+
 <template>
   <header>
-    <section class="top-nav">
-      <div class="logo">
+    <section>
+      <RouterLink to="/" class="logo">
         <img src="../assets/logo.png" alt="" style="width: 30px" />
         <span @click="home">LyricsFinder</span>
-      </div>
+      </RouterLink>
       <form @submit.prevent="submitForm" class="searcharea">
         <input type="text" placeholder="Search" v-model="query" />
         <button type="submit">
@@ -19,30 +28,24 @@
   </header>
 </template>
 
-<script setup>
-import { ref } from 'vue'
-const query = ref('')
-const submitForm = () => {
-  if (this.$route.name === 'SearchResult') {
-    let queryParameters = new URLSearchParams(window.location.search)
-    queryParameters.set('q', this.query)
-    let newUrl = `${window.location.origin}${window.location.pathname}?${queryParameters.toString()}`
-    window.location.href = newUrl
-  } else {
-    const baseURL = '/search'
-    const urlWithQuery = `${baseURL}?q=${this.query}`
-    window.location.href = urlWithQuery
-  }
+<style scoped>
+header {
+  height: var(--header-height);
+  background-color: black;
+  width: 100%;
+  position: fixed;
+  top: 0;
 }
-const home = () => {
-  let url = '/'
-  window.location.href = url
+section {
+  height: 100%;
+  display: flex;
+  flex-direction: row;
+  place-items: center;
+  justify-content: space-between;
 }
-</script>
-
-<style>
 .logo {
   cursor: pointer;
+  color: white;
 }
 .logo {
   display: flex;
@@ -78,19 +81,6 @@ button:hover {
 }
 .home:hover {
   color: white;
-}
-.top-nav {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  background-color: black;
-  color: #fff;
-  height: 50px;
-  padding: 1em;
-  gap: 25vw;
-  position: fixed;
-  width: 100vw;
-  top: 0;
 }
 
 .menu {
