@@ -74,7 +74,6 @@ export const useRapidStore = defineStore('rapid', {
         })
 
         this.download = download.data.data
-        console.log(this.download)
       } catch (error) {
         console.error(error)
       }

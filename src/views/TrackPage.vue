@@ -2,22 +2,62 @@
 import { useRoute } from 'vue-router'
 import { onMounted, ref } from 'vue'
 import { useSpotifyStore } from '@/stores/spotify'
+import { Swiper, SwiperSlide } from 'swiper/vue'
+import 'swiper/css'
+
 import { useRapidStore } from '@/stores/rapid'
+// @ts-ignore
+
 import AppLayout from '@/components/AppLayout.vue'
+// @ts-ignore
+
 import PageHero from '@/components/PageHero.vue'
+// @ts-ignore
+
 import TrackLyrics from '@/components/TrackLyrics.vue'
+// @ts-ignore
+
 import MoreInfo from '@/components/MoreInfo.vue'
+// @ts-ignore
+
 import ScrollerItem from '@/components/ScrollerItem.vue'
-import ScrollerList from '@/components/ScrollerList.vue'
+// @ts-ignore
+
 import DialogModal from '@/components/DialogModal.vue'
 import MyLoader from '@/components/MyLoader.vue'
 import DownloadButton from '@/components/DownloadButton.vue'
-
 const spotify = useSpotifyStore()
 const rapid = useRapidStore()
 const route = useRoute()
 const itemId = route.query.id as string
 const loaded = ref(false)
+const swiperOptions = ref({
+  // slidesPerView: 4,
+  spaceBetween: 50,
+  pagination: {
+    el: '.swiper-pagination',
+    clickable: true
+  },
+  breakpoints: {
+    // Define settings for specific screen sizes
+    1100: {
+      slidesPerView: 4,
+      spaceBetween: 30
+    },
+    800: {
+      slidesPerView: 3,
+      spaceBetween: 20
+    },
+    570: {
+      slidesPerView: 2,
+      spaceBetween: 20
+    },
+    450: {
+      slidesPerView: 1,
+      spaceBetween: 10
+    }
+  }
+})
 onMounted(async () => {
   try {
     await spotify.tracks(itemId)
@@ -134,34 +174,36 @@ const closeModal = () => {
     />
     <DownloadButton @click="download()" />
     <MoreInfo title="Songs on Album" v-if="album != null" class="dark">
-      <ScrollerList>
-        <ScrollerItem
-          v-for="item in album"
-          :key="item"
-          :name="item?.name"
-          :followers="item.followers"
-          :image="track?.album?.images?.[1]?.url"
-          :isCurrent="item.id == track?.id"
-          :artists="item.artists"
-          route="track"
-          params="id"
-          :value="item?.id"
-        />
-      </ScrollerList>
+      <swiper v-bind="swiperOptions">
+        <swiper-slide v-for="(item, index) in album" :key="index">
+          <ScrollerItem
+            :name="item?.name"
+            :followers="item.followers"
+            :image="track?.album?.images?.[1]?.url"
+            :active="item.id == track?.id"
+            :artists="item.artists"
+            route="track"
+            params="id"
+            :value="item?.id"
+            :dark="true"
+          />
+        </swiper-slide>
+      </swiper>
     </MoreInfo>
     <MoreInfo title="Recommendations" class="dark">
-      <ScrollerList>
-        <ScrollerItem
-          v-for="(item, index) in recommendations"
-          :key="index"
-          :name="item?.name"
-          :image="item?.album?.images?.[1]?.url"
-          :artists="item.artists"
-          route="track"
-          params="id"
-          :value="item?.id"
-        />
-      </ScrollerList>
+      <swiper v-bind="swiperOptions">
+        <swiper-slide v-for="(item, index) in recommendations" :key="index">
+          <ScrollerItem
+            :name="item?.name"
+            :image="item?.album?.images?.[1]?.url"
+            :artists="item.artists"
+            route="track"
+            params="id"
+            :value="item?.id"
+            :dark="true"
+          />
+        </swiper-slide>
+      </swiper>
     </MoreInfo>
   </AppLayout>
 </template>

@@ -1,54 +1,24 @@
-<template>
-  <AppLayout :loaded="loaded">
-    <PageHero
-      v-if="artist != null"
-      :name="artist?.name"
-      :image="artist?.images[1]?.url"
-      :followers="artist.followers.total"
-      :genre="artist.genre"
-      :popularity="artist.popularity"
-    />
-    <MainSection title="Tracklist:">
-      <VerticalLister>
-        <ListItem
-          v-for="(item, index) in albums"
-          :key="item"
-          :image="item?.images[1]?.url"
-          :artists="item?.album_type"
-          :title="item?.name"
-          route="album"
-          params="id"
-          :value="item?.id"
-        />
-      </VerticalLister>
-    </MainSection>
-    <MoreInfo title="Related Artists" v-if="topartists != null">
-      <ScrollerList>
-        <ScrollerItem
-          v-for="item in topartists"
-          :key="item"
-          :name="item?.name"
-          :followers="item.followers.total"
-          :image="item?.images[1]?.url"
-          route="track"
-          params="id"
-          :value="item?.id"
-        />
-      </ScrollerList>
-    </MoreInfo>
-  </AppLayout>
-</template>
 <script setup lang="ts">
 import { onMounted, ref } from 'vue'
 import { useRoute } from 'vue-router'
 import { useSpotifyStore } from '@/stores/spotify'
+import { Swiper, SwiperSlide } from 'swiper/vue'
+import 'swiper/css'
 import PageHero from '@/components/PageHero.vue'
+// @ts-ignore
+
 import AppLayout from '@/components/AppLayout.vue'
 import MainSection from '@/components/MainSection.vue'
 import ListItem from '@/components/ListItem.vue'
 import VerticalLister from '@/components/VerticalLister.vue'
+// @ts-ignore
+
 import MoreInfo from '@/components/MoreInfo.vue'
+// @ts-ignore
+
 import ScrollerItem from '@/components/ScrollerItem.vue'
+// @ts-ignore
+
 import ScrollerList from '@/components/ScrollerList.vue'
 const spotify = useSpotifyStore()
 const artist = ref<{
@@ -74,7 +44,31 @@ const loaded = ref(false)
 // Get route parameters
 const route = useRoute()
 const itemId = route.query.id as string
-
+const swiperOptions = ref({
+  spaceBetween: 50,
+  pagination: {
+    el: '.swiper-pagination',
+    clickable: true
+  },
+  breakpoints: {
+    1100: {
+      slidesPerView: 4,
+      spaceBetween: 30
+    },
+    800: {
+      slidesPerView: 3,
+      spaceBetween: 20
+    },
+    570: {
+      slidesPerView: 2,
+      spaceBetween: 20
+    },
+    450: {
+      slidesPerView: 1,
+      spaceBetween: 10
+    }
+  }
+})
 onMounted(async () => {
   try {
     // Fetch album data
@@ -95,82 +89,44 @@ onMounted(async () => {
 })
 </script>
 
-<style scoped>
-.pad {
-  padding: 2rem;
-}
-.todown:hover {
-  border-bottom: 2px solid black;
-}
-.albuminfos img {
-  width: 300px;
-  height: 300px;
-}
-a {
-  text-decoration: none;
-  color: black;
-}
-.loading {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 100vh;
-}
-.Basicinfo {
-  display: flex;
-  flex-direction: row;
-}
-.topbasic {
-  margin-top: 3rem;
-  gap: 10rem;
-}
-.Basicinfo > div {
-  display: flex;
-  flex-direction: row;
-  gap: 5rem;
-}
-.left {
-  width: 15vw;
-}
-.songlyrics {
-  text-align: center;
-}
-.main {
-  background-color: rgb(245, 245, 245);
-  padding: 1rem;
-}
-.tit {
-  text-align: center;
-}
-.todown {
-  color: black;
-  padding: 0 1rem;
-  font-weight: 400;
-}
-.about {
-  background-color: black;
-  color: white;
-  padding: 2rem;
-}
-.about a {
-  color: white;
-}
-.album-container {
-  display: flex;
-  flex-direction: row;
-  gap: 2rem;
-}
-@media (max-width: 700px) {
-  .Basicinfo {
-    flex-direction: column;
-    gap: 1rem;
-  }
-  .Basicinfo > div {
-    flex-direction: column;
-    gap: 1rem;
-  }
-  .left {
-    width: unset;
-  }
-}
-</style>
+<template>
+  <AppLayout :loaded="loaded">
+    <PageHero
+      v-if="artist != null"
+      :name="artist?.name"
+      :image="artist?.images[1]?.url"
+      :followers="artist.followers.total"
+      :genre="artist?.genre"
+      :popularity="artist.popularity"
+    />
+    <MainSection title="Tracklist:">
+      <VerticalLister>
+        <ListItem
+          v-for="(item, index) in albums"
+          :key="item"
+          :image="item?.images[1]?.url"
+          :artists="item?.album_type"
+          :title="item?.name"
+          route="album"
+          params="id"
+          :value="item?.id"
+        />
+      </VerticalLister>
+    </MainSection>
+    <MoreInfo title="Related Artists" v-if="topartists != null">
+      <swiper v-bind="swiperOptions">
+        <swiper-slide v-for="item in topartists" :key="item">
+          <ScrollerItem
+            :name="item?.name"
+            :followers="item.followers.total"
+            :image="item?.images[1]?.url"
+            route="track"
+            params="id"
+            :value="item?.id"
+            :dark="true"
+          />
+        </swiper-slide>
+      </swiper>
+    </MoreInfo>
+  </AppLayout>
+</template>
