@@ -1,9 +1,9 @@
+<script setup>
+import MyLoader from '@/components/MyLoader.vue'
+</script>
 <template>
   <main>
-    <div class="loader"></div>
-    <!-- <iframe
-      src="https://lottie.host/embed/4b5540b3-cbd2-4bc2-a6bb-41d68156c658/NRF1RX9TbV.json"
-    ></iframe> -->
+    <MyLoader />
   </main>
 </template>
 <style scoped>
@@ -13,31 +13,5 @@ main {
   flex: 1;
 
   align-items: center;
-  /* height: 100vh; */
-}
-.loader {
-  width: 50px;
-  aspect-ratio: 1;
-  display: grid;
-  color: #514b82;
-  background: conic-gradient(from 90deg at 3px 3px, #0000 90deg, currentColor 0) -3px -3px /
-    calc(50% + 1.5px) calc(50% + 1.5px);
-  animation: l28 2s infinite;
-}
-.loader::before,
-.loader::after {
-  content: '';
-  grid-area: 1/1;
-  background: repeating-conic-gradient(#0000 0 35deg, currentColor 0 90deg);
-  -webkit-mask: radial-gradient(farthest-side, #0000 calc(100% - 3px), #000 0);
-  border-radius: 50%;
-}
-.loader::after {
-  margin: 20%;
-}
-@keyframes l28 {
-  100% {
-    transform: rotate(1turn);
-  }
 }
 </style>

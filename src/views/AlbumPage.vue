@@ -8,6 +8,7 @@
       :releaseDate="album?.release_date"
       :url="album?.external_urls?.spotify"
     />
+
     <MainSection title="Tracklist:">
       <VerticalLister>
         <ListItem
@@ -22,6 +23,7 @@
         />
       </VerticalLister>
     </MainSection>
+    <DownloadButton :params="params" />
     <MoreInfo title="New Releases" v-if="album != null" class="dark">
       <ScrollerList>
         <ScrollerItem
@@ -51,6 +53,7 @@ import VerticalLister from '@/components/VerticalLister.vue'
 import MoreInfo from '@/components/MoreInfo.vue'
 import ScrollerItem from '@/components/ScrollerItem.vue'
 import ScrollerList from '@/components/ScrollerList.vue'
+import DownloadButton from '@/components/DownloadButton.vue'
 const spotify = useSpotifyStore()
 const album = ref<{
   images: { url: string }[]
@@ -75,28 +78,26 @@ const newrelease = ref<
 
 const loaded = ref(false)
 
-// Get route parameters
 const route = useRoute()
 const itemId = route.query.id as string
 
 onMounted(async () => {
   try {
-    // Fetch album data
     await spotify.albums(itemId)
     await spotify.getNewRelease()
-    // Update album reference with data from Spotify store
     album.value = spotify.albumgetter || null
     tracks.value = spotify.albumgetter.tracks.items || null
     newrelease.value = spotify.getnewrelease || null
-
-    // Set loaded state to true after data is fetched
     loaded.value = true
-
-    // Debug output
   } catch (error) {
     console.error('Error fetching album data:', error)
   }
 })
+
+const params = {
+  pathname: 'downloadAlbum',
+  params: [{ name: 'albumId', value: itemId }]
+}
 </script>
 
 <style>

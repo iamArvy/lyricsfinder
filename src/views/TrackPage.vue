@@ -9,6 +9,10 @@ import TrackLyrics from '@/components/TrackLyrics.vue'
 import MoreInfo from '@/components/MoreInfo.vue'
 import ScrollerItem from '@/components/ScrollerItem.vue'
 import ScrollerList from '@/components/ScrollerList.vue'
+import DialogModal from '@/components/DialogModal.vue'
+import MyLoader from '@/components/MyLoader.vue'
+import DownloadButton from '@/components/DownloadButton.vue'
+
 const spotify = useSpotifyStore()
 const rapid = useRapidStore()
 const route = useRoute()
@@ -70,14 +74,51 @@ const recommendations = ref<
     }[]
   | null
 >(null)
+
+const loading = ref(false)
+const openModal = ref(false)
+const resp = ref<string>('')
+const download = async () => {
+  try {
+    loading.value = true
+    openModal.value = true
+    await rapid.downloader({
+      pathname: 'downloadSong',
+      params: [{ name: 'songId', value: itemId }]
+    })
+    const link = ref(null)
+    link.value = rapid.downloadgetter
+    if (link.value) {
+      console.log(link)
+      const newTab = window.open(link.value, '_blank')
+
+      if (!newTab) {
+        resp.value = 'Please allow pop-ups for this website'
+      } else {
+        resp.value = 'Download has Started'
+      }
+    }
+    loading.value = false
+  } catch (error) {
+    resp.value = 'Something went Wrong'
+    console.error('Error getting download link', error)
+  }
+}
+const closeModal = () => {
+  openModal.value = false
+}
 </script>
 
 <template>
   <AppLayout :loaded="loaded">
+    <DialogModal :show="openModal" :close="closeModal" :title="track?.name">
+      <MyLoader v-if="loading" />
+      <span v-else>{{ resp }}</span>
+    </DialogModal>
     <PageHero
       v-if="track != null"
       :name="track?.name"
-      :image="track?.album?.images[1]?.url"
+      :image="track?.album?.images?.[1]?.url"
       :artists="track?.artists"
       :releaseDate="track?.album?.release_date"
       :url="track?.external_urls?.spotify"
@@ -91,6 +132,7 @@ const recommendations = ref<
       :url="track?.preview_url"
       :uri="track?.uri"
     />
+    <DownloadButton @click="download()" />
     <MoreInfo title="Songs on Album" v-if="album != null" class="dark">
       <ScrollerList>
         <ScrollerItem
@@ -98,7 +140,7 @@ const recommendations = ref<
           :key="item"
           :name="item?.name"
           :followers="item.followers"
-          :image="track?.album?.images[1]?.url"
+          :image="track?.album?.images?.[1]?.url"
           :isCurrent="item.id == track?.id"
           :artists="item.artists"
           route="track"
@@ -113,7 +155,7 @@ const recommendations = ref<
           v-for="(item, index) in recommendations"
           :key="index"
           :name="item?.name"
-          :image="item?.album?.images[1].url"
+          :image="item?.album?.images?.[1]?.url"
           :artists="item.artists"
           route="track"
           params="id"
@@ -124,6 +166,4 @@ const recommendations = ref<
   </AppLayout>
 </template>
 
-<style scoped>
-/* Your styles here */
-</style>
+<style scoped></style>

@@ -5,19 +5,19 @@ import axios from 'axios'
 // Define state interface
 interface State {
   lyrics: any | null
-  downloadstate: any | null
+  download: any | null
 }
 
 // Define the store
 export const useRapidStore = defineStore('rapid', {
   state: (): State => ({
     lyrics: null,
-    downloadstate: null
+    download: null
   }),
 
   getters: {
     lyricsgetter: (state) => state.lyrics?.lyrics.lines ?? null,
-    downloadgetter: (state) => state.downloadstate?.audio ?? null
+    downloadgetter: (state) => state.download?.downloadLink ?? null
   },
 
   actions: {
@@ -56,26 +56,28 @@ export const useRapidStore = defineStore('rapid', {
       } catch (error) {
         console.error(error)
       }
-    }
+    },
 
-    // async downloader(id: string) {
-    //   try {
-    //     const { key } = await this.getAuthdetails()
-    //     const download = await axios.get(
-    //       'https://spotify-downloader3.p.rapidapi.com/spotify/download/',
-    //       {
-    //         params: { url: `https://open.spotify.com/track/${id}` },
-    //         headers: {
-    //           'X-RapidAPI-Key': key,
-    //           'X-RapidAPI-Host': 'spotify-downloader3.p.rapidapi.com'
-    //         }
-    //       }
-    //     )
-    //     this.downloadstate = download.data
-    //     this.loaded = true
-    //   } catch (error) {
-    //     console.error(error)
-    //   }
-    // },
+    async downloader(requestInfo: { pathname: string; params: { name: string; value: string }[] }) {
+      console.log(requestInfo)
+      const url = new URL('https://spotify-downloader9.p.rapidapi.com')
+      url.pathname = requestInfo?.pathname
+      requestInfo?.params.forEach((param) => url.searchParams.append(param.name, param.value))
+
+      try {
+        const key = import.meta.env.VITE_RAPID_API_KEY
+        const download = await axios.get(url.toString(), {
+          headers: {
+            'X-RapidAPI-Key': key,
+            'X-RapidAPI-Host': 'spotify-downloader9.p.rapidapi.com'
+          }
+        })
+
+        this.download = download.data.data
+        console.log(this.download)
+      } catch (error) {
+        console.error(error)
+      }
+    }
   }
 })

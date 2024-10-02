@@ -13,12 +13,6 @@
       <i class="fa-brands fa-spotify"></i>
       <a :href="uri">Open In Spotify</a>
     </div>
-    <div class="mydown" align="center" style="padding-top: 10px">
-      <!-- <button class="todown" @click="download">CLICK TO DOWNLOAD<i class="fa-solid fa-download"></i></button> <br>
-          <div class="vvv" v-if="downloadgetter" >
-            <a :href="downloadgetter" style="text-decoration: underline;" >Download Link </a>
-          </div> -->
-    </div>
   </section>
 </template>
 
