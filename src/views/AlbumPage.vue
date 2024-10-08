@@ -94,7 +94,7 @@ onMounted(async () => {
 })
 const openModal = ref(false)
 const loading = ref<boolean>(true)
-const resp = ref<any>('')
+const resp = ref<any>('Starting Download')
 const download = async () => {
   const dAlbum = ref<{
     albumDetails: { artist: string; releaseDate: string; cover: string; title: string }
@@ -107,6 +107,7 @@ const download = async () => {
       cover: string
     }[]
   } | null>(null)
+
   try {
     openModal.value = true
     await rapid.downloader({
@@ -114,17 +115,23 @@ const download = async () => {
       params: [{ name: 'albumId', value: itemId }]
     })
     dAlbum.value = rapid.downloadgetter
+
     console.log(dAlbum.value)
     console.log(rapid.downloadgetter)
+
     if (dAlbum.value) {
-      resp.value = await downloadAlbum(dAlbum.value)
       loading.value = false
+      // Pass a callback to update progress
+      await downloadAlbum(dAlbum.value, (message) => {
+        resp.value = message // Update resp with the progress message
+      })
     }
   } catch (error) {
-    resp.value = 'Something went Wrong'
+    resp.value = 'Something went wrong'
     console.error('Error getting download link', error)
   }
 }
+
 const closeModal = () => {
   openModal.value = false
 }

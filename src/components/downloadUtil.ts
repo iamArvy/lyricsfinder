@@ -43,19 +43,23 @@ const download = (url: string, filename: string) => {
   a.remove()
 }
 
-const downloadAlbum = async (album: {
-  albumDetails: { artist: string; releaseDate: string; cover: string; title: string }
-  songs: {
-    artist: string
-    title: string
-    album: string
-    downloadLink: string
-    releaseDate: string
-    cover: string
-  }[]
-}): Promise<string> => {
+const downloadAlbum = async (
+  album: {
+    albumDetails: { artist: string; releaseDate: string; cover: string; title: string }
+    songs: {
+      artist: string
+      title: string
+      album: string
+      downloadLink: string
+      releaseDate: string
+      cover: string
+    }[]
+  },
+  updateProgress: (message: string) => void // Add progress callback
+): Promise<string> => {
   const zip = new JSZip()
   const { artist, releaseDate, cover, title } = album.albumDetails
+  const totalTracks = album.songs.length
 
   let imageData: Uint8Array | null = null
 
@@ -63,7 +67,8 @@ const downloadAlbum = async (album: {
     imageData = await getImageData(cover)
   }
 
-  for (const track of album.songs) {
+  for (let i = 0; i < totalTracks; i++) {
+    const track = album.songs[i]
     const { title, downloadLink } = track
 
     const data = {
@@ -74,13 +79,24 @@ const downloadAlbum = async (album: {
       year: releaseDate.split('-')[0],
       picture: imageData ? { format: 'image/jpeg', data: imageData } : undefined
     }
+
+    // Update progress: downloading track i+1 of totalTracks
+    updateProgress(`Downloading ${i + 1} of ${totalTracks}`)
+
     const audioBlob = await getAudioBlob(downloadLink, data)
     zip.file(`${title}.mp3`, audioBlob)
   }
+
+  // Update progress: Compiling album tracks
+  updateProgress('Compiling album tracks...')
+
   const zipBlob = await zip.generateAsync({ type: 'blob' })
   const url = URL.createObjectURL(zipBlob)
   download(url, `${title}.zip`)
   URL.revokeObjectURL(url)
+
+  // Final update: Download has started
+  updateProgress('Download has started')
   return 'Download has started'
 }
 
