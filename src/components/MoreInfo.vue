@@ -12,6 +12,8 @@ defineProps({
 <style scoped>
 section {
   background-color: black;
+  padding-top: 1rem;
+  padding-bottom: 1rem;
 }
 h1 {
   color: white;

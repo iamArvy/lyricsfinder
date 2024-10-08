@@ -17,7 +17,7 @@ export const useRapidStore = defineStore('rapid', {
 
   getters: {
     lyricsgetter: (state) => state.lyrics?.lyrics.lines ?? null,
-    downloadgetter: (state) => state.download?.downloadLink ?? null
+    downloadgetter: (state) => state.download ?? null
   },
 
   actions: {
@@ -59,7 +59,6 @@ export const useRapidStore = defineStore('rapid', {
     },
 
     async downloader(requestInfo: { pathname: string; params: { name: string; value: string }[] }) {
-      console.log(requestInfo)
       const url = new URL('https://spotify-downloader9.p.rapidapi.com')
       url.pathname = requestInfo?.pathname
       requestInfo?.params.forEach((param) => url.searchParams.append(param.name, param.value))
@@ -74,6 +73,7 @@ export const useRapidStore = defineStore('rapid', {
         })
 
         this.download = download.data.data
+        console.log(this.download)
       } catch (error) {
         console.error(error)
       }

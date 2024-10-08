@@ -4,7 +4,7 @@ import { onMounted, ref } from 'vue'
 import { useSpotifyStore } from '@/stores/spotify'
 import { Swiper, SwiperSlide } from 'swiper/vue'
 import 'swiper/css'
-
+import { downloadAudio } from '@/components/downloadUtil'
 import { useRapidStore } from '@/stores/rapid'
 // @ts-ignore
 
@@ -32,14 +32,12 @@ const route = useRoute()
 const itemId = route.query.id as string
 const loaded = ref(false)
 const swiperOptions = ref({
-  // slidesPerView: 4,
   spaceBetween: 50,
   pagination: {
     el: '.swiper-pagination',
     clickable: true
   },
   breakpoints: {
-    // Define settings for specific screen sizes
     1100: {
       slidesPerView: 4,
       spaceBetween: 30
@@ -126,19 +124,21 @@ const download = async () => {
       pathname: 'downloadSong',
       params: [{ name: 'songId', value: itemId }]
     })
-    const link = ref(null)
-    link.value = rapid.downloadgetter
-    if (link.value) {
-      console.log(link)
-      const newTab = window.open(link.value, '_blank')
+    const link = ref<{
+      title: string
+      downloadLink: string
+      artist: string
+      album: string
+      cover: string
+      releaseDate: string
+    } | null>(null)
 
-      if (!newTab) {
-        resp.value = 'Please allow pop-ups for this website'
-      } else {
-        resp.value = 'Download has Started'
-      }
+    link.value = rapid.downloadgetter
+    console.log(rapid.downloadgetter)
+    if (link.value) {
+      resp.value = await downloadAudio(link.value)
+      loading.value = false
     }
-    loading.value = false
   } catch (error) {
     resp.value = 'Something went Wrong'
     console.error('Error getting download link', error)
