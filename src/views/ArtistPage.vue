@@ -19,7 +19,6 @@ import MoreInfo from '@/components/MoreInfo.vue'
 import ScrollerItem from '@/components/ScrollerItem.vue'
 // @ts-ignore
 
-import ScrollerList from '@/components/ScrollerList.vue'
 const spotify = useSpotifyStore()
 const artist = ref<{
   images: { url: string }[]
