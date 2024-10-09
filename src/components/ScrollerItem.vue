@@ -1,5 +1,6 @@
 <script setup>
 import ParameterRouting from './ParameterRouting.vue'
+import { navigate } from './navigate'
 // import { Swiper, SwiperSlide } from 'swiper/vue'
 
 defineProps({
@@ -21,15 +22,7 @@ defineProps({
 })
 </script>
 <template>
-  <!-- <swiper-slide> -->
-  <!-- <article class="tracks"> -->
-  <ParameterRouting
-    :route="route"
-    :params="params"
-    :value="value"
-    class="items tracks"
-    :class="dark ? 'dark' : null"
-  >
+  <article :class="dark ? 'dark' : null" @click="navigate(value, route, params)">
     <figure>
       <img class="artimg" v-if="image" :src="image" alt="Image" />
     </figure>
@@ -42,14 +35,17 @@ defineProps({
         </span>
       </p>
     </figcaption>
-  </ParameterRouting>
-  <!-- </article> -->
-  <!-- </swiper-slide> -->
+  </article>
 </template>
 <style scoped>
 figure {
   max-height: 80%;
+  width: 100%;
   overflow: hidden;
+  display: flex;
+  /* place-content: center; */
+  justify-content: center;
+  align-items: center;
 }
 figure img {
   width: 100%;
@@ -59,7 +55,7 @@ figcaption {
   max-height: 100px;
   overflow-y: scroll;
 }
-.items {
+article {
   display: flex;
   flex-direction: column;
   padding: 0 0 1rem 0;
@@ -69,20 +65,20 @@ figcaption {
   max-height: 400px;
   overflow: hidden;
   border-radius: 29px;
-  /* background: #ffffff; */
+  cursor: pointer;
   box-shadow:
     8px 8px 16px #8c8c8c,
     -8px -8px 16px #ffffff;
   color: black;
 }
-.items:hover {
+article:hover {
   background-color: rgb(245, 245, 245);
 }
-.dark .items:hover {
+article.dark:hover {
   background-color: rgb(245, 245, 245);
   color: black;
 }
-.dark {
+article.dark {
   background-color: transparent;
   border: 2px solid white;
   box-shadow: none;
@@ -93,5 +89,29 @@ p {
 }
 h6 {
   font-size: 14px;
+}
+@media screen and (max-width: 879px) {
+  article {
+    width: 300px;
+    height: 350px;
+  }
+}
+@media screen and (max-width: 750px) {
+  article {
+    width: 250px;
+    height: 300px;
+  }
+}
+@media screen and (max-width: 650px) {
+  article {
+    width: 200px;
+    height: 250px;
+  }
+}
+@media screen and (max-width: 500px) {
+  article {
+    width: 300px;
+    height: 350px;
+  }
 }
 </style>

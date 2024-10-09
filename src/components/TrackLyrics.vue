@@ -35,6 +35,10 @@ article {
   text-decoration: none;
   color: black;
 }
+article span {
+  text-align: center;
+  width: 100%;
+}
 </style>
 
 <script setup>

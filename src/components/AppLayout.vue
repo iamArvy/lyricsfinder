@@ -22,6 +22,7 @@ defineProps({
 .app-container {
   display: flex;
   flex-direction: column;
+  /* align-items: center; */
   min-height: 100svh;
 }
 :root {
@@ -47,9 +48,18 @@ main {
   margin-top: var(--header-height);
   flex: 1;
   /* min-height: 80vh; */
-  max-width: 1280px;
+  display: flex;
+  flex-direction: column;
+  /* max-width: 1280px; */
 }
 * {
   font-family: Poppins;
+}
+
+@media screen and (max-width: 500px) {
+  section {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
 }
 </style>

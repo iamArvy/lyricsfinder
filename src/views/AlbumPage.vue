@@ -20,6 +20,7 @@ import { useRapidStore } from '@/stores/rapid' // Rapid Store
 import { Swiper, SwiperSlide } from 'swiper/vue' // Swiper
 import 'swiper/css'
 import { downloadAlbum } from '@/components/downloadUtil' //Downloader
+// import DownloadLoader from '@/components/DownloadLoader.vue'
 // Variables
 const spotify = useSpotifyStore()
 const rapid = useRapidStore()
@@ -95,6 +96,7 @@ onMounted(async () => {
 const openModal = ref(false)
 const loading = ref<boolean>(true)
 const resp = ref<any>('Starting Download')
+const restart = ref<boolean>(true)
 const download = async () => {
   const dAlbum = ref<{
     albumDetails: { artist: string; releaseDate: string; cover: string; title: string }
@@ -123,11 +125,12 @@ const download = async () => {
       loading.value = false
       // Pass a callback to update progress
       await downloadAlbum(dAlbum.value, (message) => {
-        resp.value = message // Update resp with the progress message
+        resp.value = message
       })
     }
   } catch (error) {
     resp.value = 'Something went wrong'
+    restart.value = true
     console.error('Error getting download link', error)
   }
 }
@@ -141,7 +144,12 @@ const closeModal = () => {
   <AppLayout :loaded="loaded">
     <DialogModal :show="openModal" :close="closeModal" :title="album?.name">
       <MyLoader v-if="loading" />
-      <span v-else>{{ resp }}</span>
+      <div v-else>
+        <div>
+          <span>{{ resp }}</span>
+        </div>
+        <!-- <div><DownloadLoader /></div> -->
+      </div>
     </DialogModal>
     <PageHero
       v-if="album != null"

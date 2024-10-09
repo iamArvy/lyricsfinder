@@ -1,4 +1,5 @@
 <script setup lang="ts">
+// @ts-ignore
 import ParameterRouting from './ParameterRouting.vue'
 defineProps({
   name: String,
@@ -48,9 +49,9 @@ defineProps({
         <h5>Track {{ trackNumber }} of {{ album.total_tracks }}</h5>
       </div>
       <h5>{{ releaseDate }}</h5>
-      <p style="width: 100%; overflow-x: scroll" class="section">
+      <!-- <p style="width: 100%; overflow-x: scroll" class="section">
         {{ url }}
-      </p>
+      </p> -->
     </figcaption>
     <!-- </div> -->
   </section>
@@ -67,7 +68,6 @@ section {
   padding-top: 1rem;
   padding-bottom: 1rem;
   background-color: black;
-  
 }
 @media (max-width: 700px) {
   section {
@@ -76,80 +76,3 @@ section {
   }
 }
 </style>
-
-<!-- <style scoped>
-.link {
-  border-bottom: 2px solid white;
-  color: white;
-}
-section {
-  display: flex;
-  flex-direction: row;
-  gap: 3rem;
-  padding-top: 1rem;
-  padding-bottom: 1rem;
-}
-.albuminfos img {
-  width: 300px;
-  height: 300px;
-}
-a {
-  text-decoration: none;
-  color: black;
-}
-.loading {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 100vh;
-}
-.Basicinfo > div {
-  display: flex;
-  flex-direction: row;
-  gap: 5rem;
-}
-.left {
-  width: 15vw;
-}
-.songlyrics {
-  text-align: center;
-}
-.main {
-  background-color: rgb(245, 245, 245);
-  padding: 1rem;
-}
-.tit {
-  text-align: center;
-}
-.todown {
-  color: black;
-  padding: 0 1rem;
-  font-weight: 400;
-}
-.about {
-  background-color: black;
-  color: white;
-  padding: 2rem;
-}
-.about a {
-  color: white;
-}
-.album-container {
-  display: flex;
-  flex-direction: row;
-  gap: 2rem;
-}
-@media (max-width: 700px) {
-  section {
-    flex-direction: column;
-    gap: 1rem;
-  }
-  .Basicinfo > div {
-    flex-direction: column;
-    gap: 1rem;
-  }
-  .left {
-    width: unset;
-  }
-}
-</style> -->

@@ -62,7 +62,7 @@ form {
   padding: 0.5rem;
 }
 input {
-  width: 20vw;
+  width: 200px;
   border: none;
 }
 input:focus {
@@ -151,7 +151,7 @@ button:hover {
 
 @media (max-width: 700px) {
   .hamb-container {
-    display: flex;
+    display: none;
   }
 
   .menu {

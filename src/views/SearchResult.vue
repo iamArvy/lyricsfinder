@@ -43,7 +43,7 @@ const albums = ref<
 const itemId = route.query.q as string
 const loaded = ref(false)
 const swiperOptions = ref({
-  spaceBetween: 50,
+  // spaceBetween: 50,
   pagination: {
     el: '.swiper-pagination',
     clickable: true
@@ -53,17 +53,17 @@ const swiperOptions = ref({
       slidesPerView: 4,
       spaceBetween: 30
     },
-    800: {
+    881: {
       slidesPerView: 3,
-      spaceBetween: 20
-    },
-    570: {
-      slidesPerView: 2,
-      spaceBetween: 20
-    },
-    450: {
-      slidesPerView: 1,
       spaceBetween: 10
+    },
+    851: {
+      slidesPerView: 2,
+      spaceBetween: 10
+    },
+    501: {
+      slidesPerView: 2,
+      spaceBetween: 1
     }
   }
 })

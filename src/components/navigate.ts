@@ -1,5 +1,5 @@
-export const navigate = (value: number, route: string): void => {
+export const navigate = (value: string, route: string, params: string): void => {
   const baseURL = `/${route}`
-  const urlWithQuery = `${baseURL}?id=${value}`
+  const urlWithQuery = `${baseURL}?${params}=${value}`
   window.location.href = urlWithQuery
 }
