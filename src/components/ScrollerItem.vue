@@ -1,8 +1,5 @@
 <script setup>
-import ParameterRouting from './ParameterRouting.vue'
-import { navigate } from './navigate'
-// import { Swiper, SwiperSlide } from 'swiper/vue'
-
+import { navigate } from '../assets/navigate'
 defineProps({
   name: String,
   followers: Number,
