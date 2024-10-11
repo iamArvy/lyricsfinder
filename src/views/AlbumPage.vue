@@ -16,14 +16,14 @@ import ScrollerItem from '@/components/ScrollerItem.vue'
 // @ts-ignore
 import DownloadButton from '@/components/DownloadButton.vue'
 import { useSpotifyStore } from '@/stores/spotify' // Spotify Store
-import { useRapidStore } from '@/stores/rapid' // Rapid Store
 import { Swiper, SwiperSlide } from 'swiper/vue' // Swiper
 import 'swiper/css'
-import { downloadAlbum } from '@/components/downloadUtil' //Downloader
+import { useDownloadStore } from '@/stores/download'
+
 // import DownloadLoader from '@/components/DownloadLoader.vue'
 // Variables
 const spotify = useSpotifyStore()
-const rapid = useRapidStore()
+const downloader = useDownloadStore()
 
 const album = ref<{
   images: { url: string }[]
@@ -88,50 +88,21 @@ onMounted(async () => {
     tracks.value = spotify.albumgetter.tracks.items || null
     newrelease.value = spotify.getnewrelease || null
     loaded.value = true
-    console.log(tracks.value)
   } catch (error) {
     console.error('Error fetching album data:', error)
   }
 })
 const openModal = ref(false)
-const loading = ref<boolean>(true)
-const resp = ref<any>('Starting Download')
-const restart = ref<boolean>(true)
+const loading = ref<boolean>(false)
+// const restart = ref<boolean>(true)
 const download = async () => {
-  const dAlbum = ref<{
-    albumDetails: { artist: string; releaseDate: string; cover: string; title: string }
-    songs: {
-      artist: string
-      title: string
-      album: string
-      downloadLink: string
-      releaseDate: string
-      cover: string
-    }[]
-  } | null>(null)
-
   try {
+    // loading.value = true
     openModal.value = true
-    await rapid.downloader({
-      pathname: 'downloadAlbum',
-      params: [{ name: 'albumId', value: itemId }]
-    })
-    dAlbum.value = rapid.downloadgetter
-
-    console.log(dAlbum.value)
-    console.log(rapid.downloadgetter)
-
-    if (dAlbum.value) {
-      loading.value = false
-      // Pass a callback to update progress
-      await downloadAlbum(dAlbum.value, (message) => {
-        resp.value = message
-      })
-    }
+    await downloader.download(itemId, 'album')
+    // loading.value = false
   } catch (error) {
-    resp.value = 'Something went wrong'
-    restart.value = true
-    console.error('Error getting download link', error)
+    console.error(error)
   }
 }
 
@@ -146,7 +117,7 @@ const closeModal = () => {
       <MyLoader v-if="loading" />
       <div v-else>
         <div>
-          <span>{{ resp }}</span>
+          <span>{{ downloader.$state.downloadProgress }}</span>
         </div>
         <!-- <div><DownloadLoader /></div> -->
       </div>

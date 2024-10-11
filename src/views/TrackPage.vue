@@ -4,8 +4,8 @@ import { onMounted, ref } from 'vue'
 import { useSpotifyStore } from '@/stores/spotify'
 import { Swiper, SwiperSlide } from 'swiper/vue'
 import 'swiper/css'
-import { downloadAudio } from '@/components/downloadUtil'
-import { useRapidStore } from '@/stores/rapid'
+import { useDownloadStore } from '@/stores/download'
+
 // @ts-ignore
 
 import AppLayout from '@/components/AppLayout.vue'
@@ -14,7 +14,7 @@ import AppLayout from '@/components/AppLayout.vue'
 import PageHero from '@/components/PageHero.vue'
 // @ts-ignore
 
-import TrackLyrics from '@/components/TrackLyrics.vue'
+// import TrackLyrics from '@/components/TrackLyrics.vue'
 // @ts-ignore
 
 import MoreInfo from '@/components/MoreInfo.vue'
@@ -27,7 +27,7 @@ import DialogModal from '@/components/DialogModal.vue'
 import MyLoader from '@/components/MyLoader.vue'
 import DownloadButton from '@/components/DownloadButton.vue'
 const spotify = useSpotifyStore()
-const rapid = useRapidStore()
+const downloader = useDownloadStore()
 const route = useRoute()
 const itemId = route.query.id as string
 const loaded = ref(false)
@@ -59,10 +59,8 @@ const swiperOptions = ref({
 onMounted(async () => {
   try {
     await spotify.tracks(itemId)
-    await rapid.getLyrics(itemId)
     track.value = spotify.trackgetter || null
     album.value = spotify.albumgetter.tracks.items || null
-    lyrics.value = rapid.lyricsgetter || null
     recommendations.value = spotify.recommendationgetter || null
     loaded.value = true
   } catch (error) {
@@ -101,8 +99,6 @@ const album = ref<
   | null
 >(null)
 
-const lyrics = ref<any[] | null>(null)
-
 const recommendations = ref<
   | {
       album?: { images: { url: string }[] }
@@ -115,33 +111,14 @@ const recommendations = ref<
 
 const loading = ref(false)
 const openModal = ref(false)
-const resp = ref<string>('')
 const download = async () => {
   try {
-    loading.value = true
+    // loading.value = true
     openModal.value = true
-    await rapid.downloader({
-      pathname: 'downloadSong',
-      params: [{ name: 'songId', value: itemId }]
-    })
-    const link = ref<{
-      title: string
-      downloadLink: string
-      artist: string
-      album: string
-      cover: string
-      releaseDate: string
-    } | null>(null)
-
-    link.value = rapid.downloadgetter
-    console.log(rapid.downloadgetter)
-    if (link.value) {
-      resp.value = await downloadAudio(link.value)
-      loading.value = false
-    }
+    await downloader.download(itemId, 'audio')
+    // loading.value = false
   } catch (error) {
-    resp.value = 'Something went Wrong'
-    console.error('Error getting download link', error)
+    console.error(error)
   }
 }
 const closeModal = () => {
@@ -153,7 +130,7 @@ const closeModal = () => {
   <AppLayout :loaded="loaded">
     <DialogModal :show="openModal" :close="closeModal" :title="track?.name">
       <MyLoader v-if="loading" />
-      <span v-else>{{ resp }}</span>
+      <span v-else>{{ downloader.$state.downloadProgress }}</span>
     </DialogModal>
     <PageHero
       v-if="track != null"
@@ -164,13 +141,6 @@ const closeModal = () => {
       :url="track?.external_urls?.spotify"
       :album="track?.album"
       :trackNumber="track?.track_number"
-    />
-    <TrackLyrics
-      v-if="track"
-      :lyrics="lyrics"
-      :name="track.name"
-      :url="track?.preview_url"
-      :uri="track?.uri"
     />
     <DownloadButton @click="download()" />
     <MoreInfo title="Songs on Album" v-if="album != null" class="dark">

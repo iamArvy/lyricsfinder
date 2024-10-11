@@ -1,5 +1,6 @@
 import JSZip from 'jszip'
 import MP3Tag from 'mp3tag.js'
+import axios from 'axios'
 
 const getImageData = (cover: string) =>
   fetch(cover)
@@ -22,6 +23,7 @@ const getAudioBlob = async (
     albumartist?: string
     year: string
     picture?: { format: string; data: Uint8Array }
+    lyrics?: string
   }
 ) => {
   const response = await fetch(downloadLink)
@@ -42,11 +44,26 @@ const download = (url: string, filename: string) => {
   a.click()
   a.remove()
 }
-
+const getLyrics = async (id: string) => {
+  try {
+    const key = import.meta.env.VITE_RAPID_API_KEY
+    const options = await axios.get('https://spotify23.p.rapidapi.com/track_lyrics/', {
+      params: { id },
+      headers: {
+        'X-RapidAPI-Key': key,
+        'X-RapidAPI-Host': 'spotify23.p.rapidapi.com'
+      }
+    })
+    return options.data
+  } catch (error) {
+    return ''
+  }
+}
 const downloadAlbum = async (
   album: {
     albumDetails: { artist: string; releaseDate: string; cover: string; title: string }
     songs: {
+      id: string
       artist: string
       title: string
       album: string
@@ -71,13 +88,16 @@ const downloadAlbum = async (
     const track = album.songs[i]
     const { title, downloadLink } = track
 
+    const lyrics = await getLyrics(track.id)
+
     const data = {
       title: title,
       artist: artist,
       album: album.albumDetails.title,
       albumartist: album.albumDetails.artist,
       year: releaseDate.split('-')[0],
-      picture: imageData ? { format: 'image/jpeg', data: imageData } : undefined
+      picture: imageData ? { format: 'image/jpeg', data: imageData } : undefined,
+      lyrics: lyrics
     }
 
     // Update progress: downloading track i+1 of totalTracks
