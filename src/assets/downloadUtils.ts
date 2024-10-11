@@ -4,35 +4,6 @@ import axios from 'axios'
 import { ref } from 'vue'
 
 const downloaddata = ref()
-// const getTrackLyrics = async (id: string): Promise<string | undefined> => {
-//   interface LyricLine {
-//     startTimeMs: string
-//     endTimeMs: string
-//     words: string
-//     syllables?: string[]
-//   }
-
-//   const lyricsArray = ref<LyricLine[]>([])
-//   try {
-//     const key = import.meta.env.VITE_RAPID_API_KEY
-//     const response = await axios.get('https://spotify23.p.rapidapi.com/track_lyrics/', {
-//       params: { id },
-//       headers: {
-//         'X-RapidAPI-Key': key,
-//         'X-RapidAPI-Host': 'spotify23.p.rapidapi.com'
-//       }
-//     })
-
-//     lyricsArray.value = response.data.lyrics.lines
-//     if (lyricsArray.value.length === 0) {
-//       return 'No Lyrics found for this song yet - Check back later'
-//     }
-//     return lyricsArray.value.map((line) => line.words).join('\n')
-//   } catch (error) {
-//     console.error('Error fetching lyrics:', error)
-//   }
-//   return undefined
-// }
 const getTrackLyrics = async (id: string): Promise<string | null> => {
   interface LyricLine {
     startTimeMs: string
