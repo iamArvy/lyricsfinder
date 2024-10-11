@@ -3,7 +3,37 @@ import MP3Tag from 'mp3tag.js'
 import axios from 'axios'
 import { ref } from 'vue'
 
-const getTrackLyrics = async (id: string): Promise<string | undefined> => {
+const downloaddata = ref()
+// const getTrackLyrics = async (id: string): Promise<string | undefined> => {
+//   interface LyricLine {
+//     startTimeMs: string
+//     endTimeMs: string
+//     words: string
+//     syllables?: string[]
+//   }
+
+//   const lyricsArray = ref<LyricLine[]>([])
+//   try {
+//     const key = import.meta.env.VITE_RAPID_API_KEY
+//     const response = await axios.get('https://spotify23.p.rapidapi.com/track_lyrics/', {
+//       params: { id },
+//       headers: {
+//         'X-RapidAPI-Key': key,
+//         'X-RapidAPI-Host': 'spotify23.p.rapidapi.com'
+//       }
+//     })
+
+//     lyricsArray.value = response.data.lyrics.lines
+//     if (lyricsArray.value.length === 0) {
+//       return 'No Lyrics found for this song yet - Check back later'
+//     }
+//     return lyricsArray.value.map((line) => line.words).join('\n')
+//   } catch (error) {
+//     console.error('Error fetching lyrics:', error)
+//   }
+//   return undefined
+// }
+const getTrackLyrics = async (id: string): Promise<string | null> => {
   interface LyricLine {
     startTimeMs: string
     endTimeMs: string
@@ -12,6 +42,7 @@ const getTrackLyrics = async (id: string): Promise<string | undefined> => {
   }
 
   const lyricsArray = ref<LyricLine[]>([])
+
   try {
     const key = import.meta.env.VITE_RAPID_API_KEY
     const response = await axios.get('https://spotify23.p.rapidapi.com/track_lyrics/', {
@@ -22,15 +53,17 @@ const getTrackLyrics = async (id: string): Promise<string | undefined> => {
       }
     })
 
-    lyricsArray.value = response.data.lyrics.lines
-    if (lyricsArray.value.length === 0) {
-      return 'No Lyrics found for this song yet - Check back later'
+    if (!response.data || !response.data.lyrics || !response.data.lyrics.lines) {
+      console.error('No lyrics data found')
+      return null
     }
+
+    lyricsArray.value = response.data.lyrics.lines
     return lyricsArray.value.map((line) => line.words).join('\n')
   } catch (error) {
     console.error('Error fetching lyrics:', error)
+    return 'Failed to fetch lyrics, please try again later.' // Optional: return a user-friendly message
   }
-  return undefined
 }
 
 const getImageData = async (cover: string): Promise<Uint8Array> => {
@@ -65,19 +98,25 @@ const getDownloadData = async (requestInfo: {
       }
     })
 
-    return response.data.data
+    downloaddata.value = response.data.data
   } catch (error) {
     console.error('Error fetching download data:', error)
     throw error // Re-throw error for upstream handling
   }
 }
 
-const getAudioBlob = async (downloadLink: string): Promise<Blob> => {
-  const response = await fetch(downloadLink)
-  if (!response.ok) {
-    throw new Error('Failed to fetch audio file')
+const getAudioBlob = async (downloadLink: string): Promise<Blob | null> => {
+  try {
+    const response = await fetch(downloadLink)
+    if (!response.ok) {
+      console.error('Failed to fetch audio file:', response.statusText)
+      return null // Return null instead of throwing an error
+    }
+    return await response.blob()
+  } catch (error) {
+    console.error('Error fetching audio file:', error)
+    return null // Return null on network errors
   }
-  return response.blob()
 }
 
 const getTaggedBlob = (
@@ -89,7 +128,7 @@ const getTaggedBlob = (
     albumartist?: string
     year: string
     picture?: { format: string; data: Uint8Array }
-    lyrics?: string
+    lyrics: string | null
     track?: number
   }
 ): Promise<Blob> => {
@@ -143,13 +182,15 @@ const getTaggedBlob = (
   })
 }
 
-const download = (url: string, filename: string) => {
+const download = (file: Blob, filename: string) => {
+  const url = URL.createObjectURL(file)
   const a = document.createElement('a')
   a.href = url
   a.download = filename
   document.body.appendChild(a)
   a.click()
   a.remove()
+  URL.revokeObjectURL(url) // Clean up object URL
 }
 
 // Assuming you are using Vue 3 with the Composition API
@@ -170,7 +211,7 @@ const createAudio = async (audio: {
     throw new Error('Missing required audio information.')
   }
 
-  const lyrics = ref<string | undefined>(undefined)
+  const lyrics = ref<string | null>(null)
   const audioBlob = ref<Blob | null>(null)
 
   try {
@@ -178,6 +219,8 @@ const createAudio = async (audio: {
 
     // Fetch the audio blob
     audioBlob.value = await getAudioBlob(downloadLink)
+
+    if (!audioBlob.value) return null
     // Fetch the track lyrics
     lyrics.value = await getTrackLyrics(id)
 
@@ -215,13 +258,12 @@ const downloadAudio = async (
 
   try {
     // Fetch download data
-    const downloaddata = await getDownloadData({
+    await getDownloadData({
       pathname: 'downloadSong',
       params: [{ name: 'songId', value: id }]
     })
-
-    const { title, downloadLink, artist, album, cover, releaseDate } = downloaddata
-    console.log(downloaddata)
+    const audio = ref(downloaddata.value)
+    const { title, downloadLink, artist, album, cover, releaseDate } = audio.value
     // Fetch the cover image if available
     if (cover) {
       imageData.value = await getImageData(cover)
@@ -241,19 +283,13 @@ const downloadAudio = async (
     updateProgress(`Compiling song`)
     // Create audio with tags
     const musicBlob = await createAudio(data)
-    if (!musicBlob) {
-      return 'Download failed'
+    if (musicBlob) {
+      download(musicBlob, `${title}.mp3`)
+    } else {
+      updateProgress(`Something went wrong, try again`)
     }
-
-    // Create object URL for the audio blob
-    const music = URL.createObjectURL(musicBlob)
-    download(music, `${title}.mp3`)
-    URL.revokeObjectURL(music) // Clean up object URL
-
-    return 'Download has started'
   } catch (error) {
     console.error('Error downloading audio:', error)
-    return 'Download failed'
   }
 }
 
@@ -272,17 +308,19 @@ const downloadAlbum = async (
 
   try {
     // Fetch album data
-    const album = await getDownloadData({
+    console.log('start fetch')
+    await getDownloadData({
       pathname: 'downloadAlbum',
       params: [{ name: 'albumId', value: id }]
     })
-
-    if (!album) {
+    const album = ref(downloaddata.value)
+    console.log(album.value)
+    if (!album.value) {
       throw new Error('Album not found.')
     }
 
-    const { artist, releaseDate, cover, title } = album.albumDetails
-    const totalTracks = album.songs.length
+    const { artist, releaseDate, cover, title } = album.value.albumDetails
+    const totalTracks = album.value.songs.length
 
     // Fetch cover image if available
     if (cover) {
@@ -290,9 +328,12 @@ const downloadAlbum = async (
     }
 
     // Download each track and add to the zip file
-    for (let i = 0; i < totalTracks; i++) {
-      const track = album.songs[i]
-      const { title: trackTitle, downloadLink, id: trackId } = track
+    console.log('start loop')
+    for (let i = 0; i < totalTracks; ) {
+      album.value = downloaddata.value
+      const track = album.value.songs[i]
+      const { title: trackTitle, downloadLink, id: trackId, artist: trackArtist } = track
+      console.log(trackArtist)
 
       const data = {
         id: trackId,
@@ -301,28 +342,28 @@ const downloadAlbum = async (
         downloadLink: downloadLink,
         album: title,
         albumartist: artist,
-        artist: artist,
+        artist: trackArtist,
         cover: imageData.value,
         releaseDate: releaseDate.split('-')[0] // Extract year from release date
       }
 
       updateProgress(`Downloading track ${i + 1} of ${totalTracks}: ${trackTitle}`)
       const musicBlob = await createAudio(data)
-
-      if (musicBlob) {
-        zip.file(`${trackTitle}.mp3`, musicBlob)
-      } else {
-        console.error(`Failed to create audio for track: ${trackTitle}`)
+      if (!musicBlob) {
+        console.log('restarting')
+        await getDownloadData({
+          pathname: 'downloadAlbum',
+          params: [{ name: 'albumId', value: id }]
+        })
+        continue
       }
+      zip.file(`${trackTitle} - ${title}.mp3`, musicBlob)
+      i++
     }
 
     updateProgress('Compiling album tracks into a ZIP file...')
     const zipBlob = await zip.generateAsync({ type: 'blob' })
-
-    // Create a downloadable link for the ZIP file
-    const url = URL.createObjectURL(zipBlob)
-    download(url, `${title}.zip`)
-    URL.revokeObjectURL(url) // Clean up object URL
+    download(zipBlob, `${title}.zip`)
     updateProgress('Download has started')
   } catch (error) {
     throw new Error('Download failed:' + error)
