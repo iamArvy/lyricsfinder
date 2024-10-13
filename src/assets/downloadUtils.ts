@@ -255,7 +255,7 @@ const downloadAudio = async (
     // Create audio with tags
     const musicBlob = await createAudio(data)
     if (musicBlob) {
-      download(musicBlob, `${title}.mp3`)
+      download(musicBlob, `${artist} - ${album} - ${title}.mp3`)
     } else {
       updateProgress(`Something went wrong, try again`)
     }
@@ -328,7 +328,7 @@ const downloadAlbum = async (
         })
         continue
       }
-      zip.file(`${trackTitle} - ${title}.mp3`, musicBlob)
+      zip.file(`${artist} - ${title} - ${i + 1} - ${title}.mp3`, musicBlob)
       i++
     }
 
