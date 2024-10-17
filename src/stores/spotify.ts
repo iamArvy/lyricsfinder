@@ -6,7 +6,6 @@ import axios from 'axios'
 interface State {
   charts: any | null
   accessToken: string | null
-  // loaded: boolean
   searchstate: any | null
   trackstate: any | null
   lyricstate: any | null
@@ -24,7 +23,6 @@ export const useSpotifyStore = defineStore('spotify', {
   state: (): State => ({
     charts: null,
     accessToken: null,
-    // loaded: false,
     searchstate: null,
     trackstate: null,
     lyricstate: null,
@@ -196,7 +194,7 @@ export const useSpotifyStore = defineStore('spotify', {
       try {
         await this.getAlbuminfo(id)
         // await this.getNewalbum()
-        // this.loaded = true
+
         console.log(this.trackgetter)
       } catch (error) {
         console.error(error)
@@ -209,7 +207,6 @@ export const useSpotifyStore = defineStore('spotify', {
         await this.getArtist(id)
         await this.getArtistalbum(id)
         await this.getArtisttop(id)
-        // this.loaded = true
       } catch (error) {
         console.error(error)
       }
@@ -226,7 +223,6 @@ export const useSpotifyStore = defineStore('spotify', {
             }
           })
           this.searchstate = options.data
-          // this.loaded = true
         }
       } catch (error) {
         console.error(error)
@@ -247,7 +243,6 @@ export const useSpotifyStore = defineStore('spotify', {
     //       }
     //     )
     //     this.downloadstate = download.data
-    //     this.loaded = true
     //   } catch (error) {
     //     console.error(error)
     //   }
@@ -257,7 +252,6 @@ export const useSpotifyStore = defineStore('spotify', {
       try {
         // await this.getNewalbum()
         await this.charts()
-        // this.loaded = true
       } catch (error) {
         console.error(error)
       }

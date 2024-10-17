@@ -37,6 +37,12 @@ const router = createRouter({
       name: 'track',
       component: () => import('../views/TrackPage.vue'),
       meta: { title: 'Track Page' }
+    },
+    {
+      path: '/test',
+      name: 'test',
+      component: () => import('../views/TestPage.vue'),
+      meta: { title: 'Test Page' }
     }
   ]
 })

@@ -1,58 +1,53 @@
 <script setup lang="ts">
-import { navigate } from '../assets/navigate'
+import { navigate } from '@/assets/navigate'
+import ImgFigure from './ImgFigure.vue'
 defineProps<{
   item: {
     title: string
-    description: string
+    description?: string
     id: string
-    img: string
+    img?: string
   }
+  route: string
+  params: string
+  dark?: boolean | false
+  active?: boolean | false
+  rounded?: boolean | false
+  album?: boolean
 }>()
 </script>
 <template>
-  <article @click="navigate(item.id, 'album', 'id')">
-    <figure>
-      <img class="artimg" v-if="item.img" :src="item.img" alt="Image" />
-    </figure>
+  <article :class="dark ? 'dark' : null" @click="navigate(item.id, route, params)">
+    <ImgFigure :src="item.img" :rounded="rounded" class="img" />
     <figcaption>
-      <h6>{{ item.title }}</h6>
-      <p>- {{ item.description }}</p>
+      <h1>{{ item.title }}</h1>
+      <p v-if="item.description">{{ item.description }}</p>
     </figcaption>
   </article>
 </template>
 <style scoped>
-figure {
-  max-height: 80%;
-  width: 100%;
-  overflow: hidden;
-  display: flex;
-  /* place-content: center; */
-  justify-content: center;
-  align-items: center;
-}
-figure img {
-  width: 100%;
+.img {
+  width: 120px;
+  height: 120px;
 }
 figcaption {
   padding: 1rem;
   max-height: 100px;
   overflow-y: scroll;
+  text-align: center;
 }
 article {
   display: flex;
   flex-direction: column;
-  padding: 0 0 1rem 0;
-  border: 0px solid black;
-  width: 250px;
-  height: 300px;
-  max-height: 400px;
-  overflow: hidden;
-  border-radius: 29px;
+  align-items: center;
+  padding: 1rem;
+  /* border: 0px solid black; */
+  /* width: 250px; */
+  /* height: 300px; */
+  /* max-height: 400px; */
   cursor: pointer;
-  box-shadow:
-    8px 8px 16px #8c8c8c,
-    -8px -8px 16px #ffffff;
   color: black;
+  background-color: transparent;
 }
 article:hover {
   background-color: rgb(245, 245, 245);
@@ -62,16 +57,13 @@ article.dark:hover {
   color: black;
 }
 article.dark {
-  background-color: transparent;
-  border: 2px solid white;
-  box-shadow: none;
   color: white;
 }
 p {
-  font-size: 12px;
-}
-h6 {
   font-size: 14px;
+}
+h1 {
+  font-size: 16px;
 }
 @media screen and (max-width: 879px) {
   article {

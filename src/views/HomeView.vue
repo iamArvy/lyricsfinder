@@ -1,23 +1,23 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue'
-import { useGeniusStore } from '@/stores/genius' // Adjust the path as necessary
-import { useSpotifyStore } from '@/stores/spotify' // Adjust the path as necessary
-import AppLayout from '@/components/AppLayout.vue'
+import { useGeniusStore } from '@/stores/genius'
+import { useSpotifyStore } from '@/stores/spotify'
+import { useLoadingStore } from '@/stores/loading'
+// @ts-ignore
 import ScrollerItem from '@/components/ScrollerItem.vue'
-import MainSection from '@/components/MainSection.vue'
+// @ts-ignore
+import MainSection from '@/partials/MainSection.vue'
 import ListItem from '@/components/ListItem.vue'
 import Lister from '@/components/VerticalLister.vue'
 import { Swiper, SwiperSlide } from 'swiper/vue'
 import 'swiper/css'
 const swiperOptions = ref({
-  // slidesPerView: 4,
   spaceBetween: 50,
   pagination: {
     el: '.swiper-pagination',
     clickable: true
   },
   breakpoints: {
-    // Define settings for specific screen sizes
     1100: {
       slidesPerView: 4,
       spaceBetween: 30
@@ -38,7 +38,7 @@ const swiperOptions = ref({
 })
 const genius = useGeniusStore()
 const spotify = useSpotifyStore()
-const loaded = ref(false)
+const loader = useLoadingStore()
 const chart = ref<
   | {
       item: {
@@ -51,10 +51,10 @@ const chart = ref<
 >(null)
 const newrelease = ref<
   | {
-      images: { url: string }[]
-      name?: string
-      artists?: { name: string }[]
-      id: number
+      img: string
+      title: string
+      description: string
+      id: string
     }[]
   | null
 >(null)
@@ -62,9 +62,24 @@ onMounted(async () => {
   try {
     await genius.getChart()
     await spotify.getNewRelease()
-    newrelease.value = spotify.getnewrelease || null
+    newrelease.value = spotify.getnewrelease
+      ? spotify.getnewrelease.map(
+          (item: {
+            name: string
+            artists: { name: string }[]
+            id: string
+            images: { url: string }[]
+          }) => ({
+            title: item.name,
+            description:
+              item.artists.map((artist: { name: string }) => artist.name).join(', ') || null,
+            id: item.id,
+            img: item.images?.[0].url
+          })
+        )
+      : null
     chart.value = genius.getchart || null
-    loaded.value = true
+    loader.setLoading(false)
   } catch (error) {
     console.error(error)
   }
@@ -72,36 +87,29 @@ onMounted(async () => {
 </script>
 
 <template>
-  <AppLayout :loaded="loaded">
-    <MainSection title="New Releases">
-      <swiper v-bind="swiperOptions">
-        <swiper-slide v-for="item in newrelease" :key="item">
-          <ScrollerItem
-            :image="item.images[2].url"
-            :name="item.name"
-            :artists="item.artists"
-            route="album"
-            params="id"
-            :value="item.id"
-          />
-        </swiper-slide>
-      </swiper>
-    </MainSection>
-    <MainSection title="Genius Weekly Top Lyrics">
-      <Lister>
-        <ListItem
-          v-for="(item, index) in chart"
-          :key="item"
-          :item="item"
-          :image="item.item.song_art_image_url"
-          :artists="item.item.artist_names"
-          :title="item.item.title"
-          :number="index + 1"
-          route="search"
-          params="q"
-          :value="item.item.title + ' ' + item.item.artist_names"
-        />
-      </Lister>
-    </MainSection>
-  </AppLayout>
+  <MainSection>
+    <template #header>New Releases</template>
+    <swiper v-bind="swiperOptions">
+      <swiper-slide v-for="(item, index) in newrelease" :key="index">
+        <ScrollerItem :item="item" route="album" params="id" :value="item.id" />
+      </swiper-slide>
+    </swiper>
+  </MainSection>
+  <MainSection>
+    <template #header>Genius Weekly Top Lyrics</template>
+    <Lister>
+      <ListItem
+        v-for="(item, index) in chart"
+        :key="index"
+        :item="item"
+        :image="item.item.song_art_image_url"
+        :artists="item.item.artist_names"
+        :title="item.item.title"
+        :number="index + 1"
+        route="search"
+        params="q"
+        :value="item.item.title + ' ' + item.item.artist_names"
+      />
+    </Lister>
+  </MainSection>
 </template>
